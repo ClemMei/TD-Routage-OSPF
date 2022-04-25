@@ -2426,7 +2426,7 @@ r201#
 * Y a-t-il des entrées O IA dans la table de routage intérieure ?
 
 * Quelle modification de la table de routage intérieure indique maintenant une
-  aire totalement terminale 
+  aire totalement terminale ?
 
 # ROUTAGE IPV6 AVEC OSPFV3
 
@@ -3138,7 +3138,7 @@ IPv6 Routing Protocol is "ospf 6"
 r202#
 ```
 
-Test de ping de R101 jusqu'à l'interface f0/1 de R102
+Test de ping de R101 jusqu'à l'interface f0/1 de R102 
 
 ```
 r101#ping fd00:fa:d0:100::100
