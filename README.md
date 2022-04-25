@@ -1011,7 +1011,7 @@ no cdp log mismatch duplex
 !
 !
 !
-          
+
 r102#
 r102#conf t 
 Enter configuration commands, one per line.  End with CNTL/Z.
@@ -1049,7 +1049,7 @@ no cdp log mismatch duplex
 !
 !
 !
-          
+
 r102#
 ```
 
@@ -1096,7 +1096,7 @@ no cdp log mismatch duplex
 control-plane
  --More-- 
 00:45:09: %OSPF-4-ERRRCV: Received invalid packet: mismatch area ID, from backbone area must be virtual-link but not found from 10.2.60.2, Serial0/0
-          
+
 r201#
 ```
 
@@ -1138,7 +1138,7 @@ no cdp log mismatch duplex
 !
 control-plane
 !
-          
+
 r202#
 ```
 
@@ -1408,7 +1408,7 @@ Link ID         ADV Router      Age         Seq#       Checksum
 10.2.200.202    202.202.202.202 579         0x80000001 0x00E80D
 
                 Summary Net Link States (Area 0)
-          
+
 Link ID         ADV Router      Age         Seq#       Checksum
 10.1.50.0       101.101.101.101 655         0x80000001 0x00D466
 10.1.50.0       102.102.102.102 646         0x80000001 0x00B680
@@ -1507,7 +1507,7 @@ no cdp log mismatch duplex
 !
 control-plane
 !
-          
+
 r101#
 r101#conf t
 Enter configuration commands, one per line.  End with CNTL/Z.
@@ -1629,7 +1629,6 @@ Link ID         ADV Router      Age         Seq#       Checksum
 172.16.201.202  101.101.101.101 966         0x80000002 0x00BF76
 172.16.201.202  102.102.102.102 1153        0x80000002 0x00A190
 r101#  
-
 ```
 
 ```
@@ -1701,7 +1700,7 @@ Link ID         ADV Router      Age         Seq#       Checksum
 10.2.200.202    202.202.202.202 224         0x80000003 0x00E40F
 
                 Summary Net Link States (Area 0)
-          
+
 Link ID         ADV Router      Age         Seq#       Checksum
 10.1.50.0       101.101.101.101 184         0x80000003 0x00D068
 10.1.50.0       102.102.102.102 105         0x80000003 0x00B282
@@ -1782,7 +1781,7 @@ r102(config-router)#
 r102#
 02:08:42: %SYS-5-CONFIG_I: Configured from console by console
 r102#
-          
+
 r102#show ip route
 Codes: C - connected, S - static, R - RIP, M - mobile, B - BGP
        D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
@@ -1919,8 +1918,6 @@ O       10.0.255.4/30 [110/74] via 10.2.200.200, 01:24:02, FastEthernet0/0
 O       10.0.255.0/30 [110/60] via 10.2.200.200, 01:24:02, FastEthernet0/0
 r201#
 ```
-
-
 
 **Question 14**
 
@@ -2068,8 +2065,6 @@ Routing Protocol is "ospf 201"
 
 r201#
 ```
-
-
 
 **Question 15**
 
@@ -2431,12 +2426,920 @@ r201#
 * Y a-t-il des entrées O IA dans la table de routage intérieure ?
 
 * Quelle modification de la table de routage intérieure indique maintenant une
-  aire totalement terminale ?
+  aire totalement terminale 
 
 # ROUTAGE IPV6 AVEC OSPFV3
 
 ## 7.2  Attribution des adresses IPv6
 
+Exemple de configuration des interface sur le routeur 101
+
+```
+r101#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+r101(config)#ipv6 unicast-routing
+r101(config)#interface fastEthernet 0/0
+r101(config-if)#ipv6 address fd00:fa:d0:100::101/64
+r101(config-if)#ipv6 enable
+r101(config-if)#exit
+r101(config)#interface fastEthernet 0/1
+r101(config-if)#ipv6 address fd00:fa:d0:101::1/64
+r101(config-if)#ipv6 enable
+r101(config-if)#exit  
+r101(config)#interface serial 0/0
+r101(config-if)#ipv6 address fd00:fa:d0:50::1/64          
+r101(config-if)#ipv6 enable 
+r101(config-if)#^Z
+r101#
+00:12:14: %SYS-5-CONFIG_I: Configured from console by console
+r101#wr
+Building configuration...
+[OK]
+```
+
+Résultat des commandes *show ipv6 interface* & *show ipv6 interface brief*
+
+```
+r100#show ipv6 interface      
+FastEthernet0/0 is up, line protocol is up
+  IPv6 is enabled, link-local address is FE80::C001:DFF:FECD:0 
+  No Virtual link-local address(es):
+  Description: SW100_e0/0
+  Global unicast address(es):
+    FD00:FA:D0:100::100, subnet is FD00:FA:D0:100::/64 
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::5
+    FF02::6
+    FF02::1:FF00:100
+    FF02::1:FFCD:0
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  ND advertised reachable time is 0 milliseconds
+  ND advertised retransmit interval is 0 milliseconds
+  ND router advertisements are sent every 200 seconds
+  ND router advertisements live for 1800 seconds
+  ND advertised default router preference is Medium
+  Hosts use stateless autoconfig for addresses.
+Serial0/0 is up, line protocol is up
+  IPv6 is enabled, link-local address is FE80::C001:DFF:FECD:0 
+  No Virtual link-local address(es):
+  Description: R200_ser0/0
+  Global unicast address(es):
+    FD00:FA:D0:120::100, subnet is FD00:FA:D0:120::/64 
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::5
+    FF02::1:FF00:100
+    FF02::1:FFCD:0
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  Hosts use stateless autoconfig for addresses.
+FastEthernet0/1 is up, line protocol is up
+  IPv6 is enabled, link-local address is FE80::C001:DFF:FECD:1 
+  No Virtual link-local address(es):
+  Description: R200_fa0/1
+  Global unicast address(es):
+    FD00:FA:D0::100, subnet is FD00:FA:D0::/64 
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::5
+    FF02::6
+    FF02::1:FF00:100
+    FF02::1:FFCD:1
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  ND advertised reachable time is 0 milliseconds
+  ND advertised retransmit interval is 0 milliseconds
+  ND router advertisements are sent every 200 seconds
+  ND router advertisements live for 1800 seconds
+  ND advertised default router preference is Medium
+  Hosts use stateless autoconfig for addresses.
+Serial0/1 is administratively down, line protocol is down
+  IPv6 is enabled, link-local address is FE80::C001:DFF:FECD:0 [TEN]
+  No Virtual link-local address(es):
+  Description: R200_ser0/1
+  Global unicast address(es):
+    FD00:FA:D0:121::100, subnet is FD00:FA:D0:121::/64 [TEN]
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::5
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  Hosts use stateless autoconfig for addresses.
+r100#
+r100#show ipv6 interface brief
+FastEthernet0/0            [up/up]
+    FE80::C001:DFF:FECD:0
+    FD00:FA:D0:100::100
+Serial0/0                  [up/up]
+    FE80::C001:DFF:FECD:0
+    FD00:FA:D0:120::100
+FastEthernet0/1            [up/up]
+    FE80::C001:DFF:FECD:1
+    FD00:FA:D0::100
+Serial0/1                  [administratively down/down]
+    FE80::C001:DFF:FECD:0
+    FD00:FA:D0:121::100
+Serial0/2                  [administratively down/down]
+Serial0/3                  [administratively down/down]
+FastEthernet1/0            [administratively down/down]
+FastEthernet2/0            [administratively down/down]
+Loopback0                  [up/up]
+r100#
+```
+
+```
+r101#show ipv6 interface 
+FastEthernet0/0 is up, line protocol is up
+  IPv6 is enabled, link-local address is FE80::C003:DFF:FEEB:0 
+  No Virtual link-local address(es):
+  Description: SW100_e0/1
+  Global unicast address(es):
+    FD00:FA:D0:100::101, subnet is FD00:FA:D0:100::/64 
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::1:FF00:101
+    FF02::1:FFEB:0
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  ND advertised reachable time is 0 milliseconds
+  ND advertised retransmit interval is 0 milliseconds
+  ND router advertisements are sent every 200 seconds
+  ND router advertisements live for 1800 seconds
+  ND advertised default router preference is Medium
+  Hosts use stateless autoconfig for addresses.
+Serial0/0 is up, line protocol is up
+  IPv6 is enabled, link-local address is FE80::C003:DFF:FEEB:0 
+  No Virtual link-local address(es):
+  Description: R101_ser0/0
+  Global unicast address(es):
+    FD00:FA:D0:50::1, subnet is FD00:FA:D0:50::/64 
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::1:FF00:1
+    FF02::1:FFEB:0
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  Hosts use stateless autoconfig for addresses.
+FastEthernet0/1 is up, line protocol is up
+  IPv6 is enabled, link-local address is FE80::C003:DFF:FEEB:1 
+  No Virtual link-local address(es):
+  Description: LAN 101
+  Global unicast address(es):
+    FD00:FA:D0:101::1, subnet is FD00:FA:D0:101::/64 
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::1:FF00:1
+    FF02::1:FFEB:1
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  ND advertised reachable time is 0 milliseconds
+  ND advertised retransmit interval is 0 milliseconds
+  ND router advertisements are sent every 200 seconds
+  ND router advertisements live for 1800 seconds
+  ND advertised default router preference is Medium
+  Hosts use stateless autoconfig for addresses.
+r101#
+r101#show ipv6 interface brief 
+FastEthernet0/0            [up/up]
+    FE80::C003:DFF:FEEB:0
+    FD00:FA:D0:100::101
+Serial0/0                  [up/up]
+    FE80::C003:DFF:FEEB:0
+    FD00:FA:D0:50::1
+FastEthernet0/1            [up/up]
+    FE80::C003:DFF:FEEB:1
+    FD00:FA:D0:101::1
+Serial0/1                  [administratively down/down]
+Serial0/2                  [administratively down/down]
+Serial0/3                  [administratively down/down]
+FastEthernet1/0            [administratively down/down]
+FastEthernet2/0            [administratively down/down]
+Loopback0                  [up/up]
+r101#
+```
+
+```
+r102#show ipv6 interface      
+FastEthernet0/0 is administratively down, line protocol is down
+  IPv6 is enabled, link-local address is FE80::C004:DFF:FEFA:0 [TEN]
+  No Virtual link-local address(es):
+  Description: SW100_e0/2
+  Global unicast address(es):
+    FD00:FA:D0:100::102, subnet is FD00:FA:D0:100::/64 [TEN]
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::5
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  ND advertised reachable time is 0 milliseconds
+  ND advertised retransmit interval is 0 milliseconds
+  ND router advertisements are sent every 200 seconds
+  ND router advertisements live for 1800 seconds
+  ND advertised default router preference is Medium
+  Hosts use stateless autoconfig for addresses.
+Serial0/0 is up, line protocol is up
+  IPv6 is enabled, link-local address is FE80::C004:DFF:FEFA:0 
+  No Virtual link-local address(es):
+  Description: R101_ser0/0
+  Global unicast address(es):
+    FD00:FA:D0:50::2, subnet is FD00:FA:D0:50::/64 
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::5
+    FF02::1:FF00:2
+    FF02::1:FFFA:0
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  Hosts use stateless autoconfig for addresses.
+FastEthernet0/1 is up, line protocol is up
+  IPv6 is enabled, link-local address is FE80::C004:DFF:FEFA:1 
+  No Virtual link-local address(es):
+  Description: LAN 102
+  Global unicast address(es):
+    FD00:FA:D0:102::1, subnet is FD00:FA:D0:102::/64 
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::5
+    FF02::6
+    FF02::1:FF00:1
+    FF02::1:FFFA:1
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  ND advertised reachable time is 0 milliseconds
+  ND advertised retransmit interval is 0 milliseconds
+  ND router advertisements are sent every 200 seconds
+  ND router advertisements live for 1800 seconds
+  ND advertised default router preference is Medium
+  Hosts use stateless autoconfig for addresses.
+r102# 
+r102#show ipv6 interface brief
+FastEthernet0/0            [administratively down/down]
+    FE80::C004:DFF:FEFA:0
+    FD00:FA:D0:100::102
+Serial0/0                  [up/up]
+    FE80::C004:DFF:FEFA:0
+    FD00:FA:D0:50::2
+FastEthernet0/1            [up/up]
+    FE80::C004:DFF:FEFA:1
+    FD00:FA:D0:102::1
+Serial0/1                  [administratively down/down]
+Serial0/2                  [administratively down/down]
+Serial0/3                  [administratively down/down]
+FastEthernet1/0            [administratively down/down]
+FastEthernet2/0            [administratively down/down]
+Loopback0                  [up/up]
+r102#
+```
+
+```
+r200#show ipv6 interface
+FastEthernet0/0 is up, line protocol is up
+  IPv6 is enabled, link-local address is FE80::C002:DFF:FEDC:0 
+  No Virtual link-local address(es):
+  Description: SW200_e0/0
+  Global unicast address(es):
+    FD00:FA:D0:200::200, subnet is FD00:FA:D0:200::/64 
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::5
+    FF02::6
+    FF02::1:FF00:200
+    FF02::1:FFDC:0
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  ND advertised reachable time is 0 milliseconds
+  ND advertised retransmit interval is 0 milliseconds
+  ND router advertisements are sent every 200 seconds
+  ND router advertisements live for 1800 seconds
+  ND advertised default router preference is Medium
+  Hosts use stateless autoconfig for addresses.
+Serial0/0 is up, line protocol is up
+  IPv6 is enabled, link-local address is FE80::C002:DFF:FEDC:0 
+  No Virtual link-local address(es):
+  Description: R100_ser0/0
+  Global unicast address(es):
+    FD00:FA:D0:120::200, subnet is FD00:FA:D0:120::/64 
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::5
+    FF02::1:FF00:200
+    FF02::1:FFDC:0
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  Hosts use stateless autoconfig for addresses.
+FastEthernet0/1 is up, line protocol is up
+  IPv6 is enabled, link-local address is FE80::C002:DFF:FEDC:1 
+  No Virtual link-local address(es):
+  Description: R100_fa0/1
+  Global unicast address(es):
+    FD00:FA:D0::200, subnet is FD00:FA:D0::/64 
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::5
+    FF02::6
+    FF02::1:FF00:200
+    FF02::1:FFDC:1
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  ND advertised reachable time is 0 milliseconds
+  ND advertised retransmit interval is 0 milliseconds
+  ND router advertisements are sent every 200 seconds
+  ND router advertisements live for 1800 seconds
+  ND advertised default router preference is Medium
+  Hosts use stateless autoconfig for addresses.
+Serial0/1 is administratively down, line protocol is down
+  IPv6 is enabled, link-local address is FE80::C002:DFF:FEDC:0 [TEN]
+  No Virtual link-local address(es):
+  Description: R100_ser0/1
+  Global unicast address(es):
+    FD00:FA:D0:121::200, subnet is FD00:FA:D0:121::/64 [TEN]
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::5
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  Hosts use stateless autoconfig for addresses.
+r200#
+r200#show ipv6 interface brief 
+FastEthernet0/0            [up/up]
+    FE80::C002:DFF:FEDC:0
+    FD00:FA:D0:200::200
+Serial0/0                  [up/up]
+    FE80::C002:DFF:FEDC:0
+    FD00:FA:D0:120::200
+FastEthernet0/1            [up/up]
+    FE80::C002:DFF:FEDC:1
+    FD00:FA:D0::200
+Serial0/1                  [administratively down/down]
+    FE80::C002:DFF:FEDC:0
+    FD00:FA:D0:121::200
+Serial0/2                  [administratively down/down]
+Serial0/3                  [administratively down/down]
+FastEthernet1/0            [administratively down/down]
+FastEthernet2/0            [administratively down/down]
+Loopback0                  [up/up]
+r200#
+```
+
+```
+r201#show ipv6 interface
+FastEthernet0/0 is up, line protocol is up
+  IPv6 is enabled, link-local address is FE80::C005:EFF:FE09:0 
+  No Virtual link-local address(es):
+  Description: SW200_e0/1
+  Global unicast address(es):
+    FD00:FA:D0:200::201, subnet is FD00:FA:D0:200::/64 
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::1:FF00:201
+    FF02::1:FF09:0
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  ND advertised reachable time is 0 milliseconds
+  ND advertised retransmit interval is 0 milliseconds
+  ND router advertisements are sent every 200 seconds
+  ND router advertisements live for 1800 seconds
+  ND advertised default router preference is Medium
+  Hosts use stateless autoconfig for addresses.
+Serial0/0 is up, line protocol is up
+  IPv6 is enabled, link-local address is FE80::C005:EFF:FE09:0 
+  No Virtual link-local address(es):
+  Description: R202_ser0/0
+  Global unicast address(es):
+    FD00:FA:D0:60::1, subnet is FD00:FA:D0:60::/64 
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::1:FF00:1
+    FF02::1:FF09:0
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  Hosts use stateless autoconfig for addresses.
+FastEthernet0/1 is up, line protocol is up
+  IPv6 is enabled, link-local address is FE80::C005:EFF:FE09:1 
+  No Virtual link-local address(es):
+  Description: LAN 201
+  Global unicast address(es):
+    FD00:FA:D0:201::1, subnet is FD00:FA:D0:201::/64 
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::1:FF00:1
+    FF02::1:FF09:1
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  ND advertised reachable time is 0 milliseconds
+  ND advertised retransmit interval is 0 milliseconds
+  ND router advertisements are sent every 200 seconds
+  ND router advertisements live for 1800 seconds
+  ND advertised default router preference is Medium
+  Hosts use stateless autoconfig for addresses.
+r201#show ipv6 interface brief
+FastEthernet0/0            [up/up]
+    FE80::C005:EFF:FE09:0
+    FD00:FA:D0:200::201
+Serial0/0                  [up/up]
+    FE80::C005:EFF:FE09:0
+    FD00:FA:D0:60::1
+FastEthernet0/1            [up/up]
+    FE80::C005:EFF:FE09:1
+    FD00:FA:D0:201::1
+Serial0/1                  [administratively down/down]
+Serial0/2                  [administratively down/down]
+Serial0/3                  [administratively down/down]
+FastEthernet1/0            [administratively down/down]
+FastEthernet2/0            [administratively down/down]
+Loopback0                  [up/up]
+r201#
+```
+
+```
+r202#show ipv6 interface
+FastEthernet0/0 is administratively down, line protocol is down
+  IPv6 is enabled, link-local address is FE80::C006:EFF:FE18:0 [TEN]
+  No Virtual link-local address(es):
+  Description: SW200_e0/2
+  Global unicast address(es):
+    FD00:FA:D0:200::202, subnet is FD00:FA:D0:200::/64 [TEN]
+  Joined group address(es):
+    FF02::1
+    FF02::2
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  ND advertised reachable time is 0 milliseconds
+  ND advertised retransmit interval is 0 milliseconds
+  ND router advertisements are sent every 200 seconds
+  ND router advertisements live for 1800 seconds
+  ND advertised default router preference is Medium
+  Hosts use stateless autoconfig for addresses.
+Serial0/0 is up, line protocol is up
+  IPv6 is enabled, link-local address is FE80::C006:EFF:FE18:0 
+  No Virtual link-local address(es):
+  Description: R201_ser0/0
+  Global unicast address(es):
+    FD00:FA:D0:60::2, subnet is FD00:FA:D0:60::/64 
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::1:FF00:2
+    FF02::1:FF18:0
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  Hosts use stateless autoconfig for addresses.
+FastEthernet0/1 is up, line protocol is up
+  IPv6 is enabled, link-local address is FE80::C006:EFF:FE18:1 
+  No Virtual link-local address(es):
+  Description: LAN 202
+  Global unicast address(es):
+    FD00:FA:D0:202::1, subnet is FD00:FA:D0:202::/64 
+  Joined group address(es):
+    FF02::1
+    FF02::2
+    FF02::1:FF00:1
+    FF02::1:FF18:1
+  MTU is 1500 bytes
+  ICMP error messages limited to one every 100 milliseconds
+  ICMP redirects are enabled
+  ICMP unreachables are sent
+  ND DAD is enabled, number of DAD attempts: 1
+  ND reachable time is 30000 milliseconds
+  ND advertised reachable time is 0 milliseconds
+  ND advertised retransmit interval is 0 milliseconds
+  ND router advertisements are sent every 200 seconds
+  ND router advertisements live for 1800 seconds
+  ND advertised default router preference is Medium
+  Hosts use stateless autoconfig for addresses.
+r202#show ipv6 interface brief
+FastEthernet0/0            [administratively down/down]
+    FE80::C006:EFF:FE18:0
+    FD00:FA:D0:200::202
+Serial0/0                  [up/up]
+    FE80::C006:EFF:FE18:0
+    FD00:FA:D0:60::2
+FastEthernet0/1            [up/up]
+    FE80::C006:EFF:FE18:1
+    FD00:FA:D0:202::1
+Serial0/1                  [administratively down/down]
+Serial0/2                  [administratively down/down]
+Serial0/3                  [administratively down/down]
+FastEthernet1/0            [administratively down/down]
+FastEthernet2/0            [administratively down/down]
+Loopback0                  [up/up]
+r202# 
+```
+
 ## 7.3  Mise en œuvre du routage OSPFv3
 
+Exemple pour le routeur R101
+
+```
+r101#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+r101(config)#ipv6 router ospf 6
+r101(config-rtr)#router-id 101.101.101.101
+r101(config-rtr)#auto-cost reference-bandwidth 10000
+% OSPFv3: Reference bandwidth is changed. 
+        Please ensure reference bandwidth is consistent across all routers.
+r101(config-rtr)#exit
+r101(config)#interface fa 0/0
+r101(config-if)#ipv6 ospf 6 area 0
+r101(config-if)#exit
+r101(config)#interface fa 0/1
+r101(config-if)#ipv6 ospf 6 area 101
+r101(config-if)#exit
+r101(config)#interface ser 0/0
+r101(config-if)#ipv6 ospf 6 area 101
+r101(config-if)#exit
+r101(config)#exit
+```
+
+Pour vérifier que la configuration est bien appliquée, je privilégie la commande *show ipv6 protocol* à la place de *show ipv6 int brief*, je vois ainsi mieux si les interfaces ont bien été distribuées dans les différentes areas
+
+```
+r100#show ipv6 protocol
+IPv6 Routing Protocol is "connected"
+IPv6 Routing Protocol is "static"
+IPv6 Routing Protocol is "ospf 6"
+  Interfaces (Area 0):
+    Serial0/1
+    FastEthernet0/1
+    Serial0/0
+    FastEthernet0/0
+  Redistribution:
+    None
+r100#
+```
+
+```
+r101#show ipv6 protocol
+IPv6 Routing Protocol is "connected"
+IPv6 Routing Protocol is "static"
+IPv6 Routing Protocol is "ospf 6"
+  Interfaces (Area 0):
+    FastEthernet0/0
+  Interfaces (Area 101):
+    FastEthernet0/1
+    Serial0/0
+  Redistribution:
+    None
+r101#
+```
+
+```
+r102#show ipv6 protocol
+IPv6 Routing Protocol is "connected"
+IPv6 Routing Protocol is "static"
+IPv6 Routing Protocol is "ospf 6"
+  Interfaces (Area 0):
+    FastEthernet0/0
+  Interfaces (Area 101):
+    FastEthernet0/1
+    Serial0/0
+  Redistribution:
+    None
+r102#
+```
+
+```
+r200#show ipv6 protocol
+IPv6 Routing Protocol is "connected"
+IPv6 Routing Protocol is "static"
+IPv6 Routing Protocol is "ospf 6"
+  Interfaces (Area 0):
+    Serial0/1
+    FastEthernet0/1
+    Serial0/0
+    FastEthernet0/0
+  Redistribution:
+    None
+r200#
+```
+
+```
+r201#show ipv6 protocol
+IPv6 Routing Protocol is "connected"
+IPv6 Routing Protocol is "static"
+IPv6 Routing Protocol is "ospf 6"
+  Interfaces (Area 0):
+    FastEthernet0/0
+  Interfaces (Area 201):
+    FastEthernet0/1
+    Serial0/0
+  Redistribution:
+    None
+r201#
+```
+
+```
+r202#show ipv6 protocol
+IPv6 Routing Protocol is "connected"
+IPv6 Routing Protocol is "static"
+IPv6 Routing Protocol is "ospf 6"
+  Interfaces (Area 0):
+    FastEthernet0/0
+  Interfaces (Area 201):
+    FastEthernet0/1
+    Serial0/0
+  Redistribution:
+    None
+r202#
+```
+
+Test de ping de R101 jusqu'à l'interface f0/1 de R102
+
+```
+r101#ping fd00:fa:d0:100::100
+
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to FD00:FA:D0:100::100, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 4/11/20 ms
+r101#
+00:00:49: %OSPFv3-5-ADJCHG: Process 6, Nbr 100.100.100.100 on FastEthernet0/0 from LOADING to FULL, Loading Done
+00:00:49: %OSPF-5-ADJCHG: Process 101, Nbr 100.100.100.100 on FastEthernet0/0 from LOADING to FULL, Loading Done
+r101#ping fd00:fa:d0:120::100
+
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to FD00:FA:D0:120::100, timeout is 2 seconds:
+..!!!
+Success rate is 60 percent (3/5), round-trip min/avg/max = 8/17/32 ms
+r101#ping fd00:fa:d0:120::200     
+
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to FD00:FA:D0:120::200, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 4/11/20 ms
+r101#ping fd00:fa:d0:200::201
+
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to FD00:FA:D0:200::201, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 20/34/44 ms
+r101#ping fd00:fa:d0:60::2   
+
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to FD00:FA:D0:60::2, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 16/36/56 ms
+r101#ping fd00:fa:d0:202::1
+
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to FD00:FA:D0:202::1, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 20/31/40 ms
+r101#
+```
+
 ## 7.4  Observation du routage OSPFv3
+
+Exemple sur R101
+
+```
+r101#sh ipv6 route ospf
+IPv6 Routing Table - 14 entries
+Codes: C - Connected, L - Local, S - Static, R - RIP, B - BGP
+       U - Per-user Static route, M - MIPv6
+       I1 - ISIS L1, I2 - ISIS L2, IA - ISIS interarea, IS - ISIS summary
+       O - OSPF intra, OI - OSPF inter, OE1 - OSPF ext 1, OE2 - OSPF ext 2
+       ON1 - OSPF NSSA ext 1, ON2 - OSPF NSSA ext 2
+       D - EIGRP, EX - EIGRP external
+O   FD00:FA:D0::/64 [110/2000]
+     via FE80::C001:DFF:FECD:0, FastEthernet0/0
+OI  FD00:FA:D0:60::/64 [110/8000]
+     via FE80::C001:DFF:FECD:0, FastEthernet0/0
+O   FD00:FA:D0:102::/64 [110/6000]
+     via FE80::C004:DFF:FEFA:0, Serial0/0
+O   FD00:FA:D0:120::/64 [110/6000]
+     via FE80::C001:DFF:FECD:0, FastEthernet0/0
+O   FD00:FA:D0:200::/64 [110/3000]
+     via FE80::C001:DFF:FECD:0, FastEthernet0/0
+OI  FD00:FA:D0:201::/64 [110/4000]
+     via FE80::C001:DFF:FECD:0, FastEthernet0/0
+OI  FD00:FA:D0:202::/64 [110/9000]
+     via FE80::C001:DFF:FECD:0, FastEthernet0/0
+r101#
+r101#sh ipv6 ospf data
+
+            OSPFv3 Router with ID (101.101.101.101) (Process ID 6)
+
+                Router Link States (Area 0)
+
+ADV Router      Age         Seq#        Fragment ID  Link count  Bits
+100.100.100.100 67          0x80000005  0            3           None
+101.101.101.101 66          0x80000005  0            1           B
+200.200.200.200 61          0x80000006  0            3           None
+201.201.201.201 69          0x80000005  0            1           B
+
+                Net Link States (Area 0)
+
+ADV Router      Age         Seq#        Link ID    Rtr count
+101.101.101.101 72          0x80000001  4          2
+200.200.200.200 78          0x80000001  5          2
+201.201.201.201 76          0x80000001  4          2
+
+                Inter Area Prefix Link States (Area 0)
+
+ADV Router      Age         Seq#        Prefix
+101.101.101.101 108         0x80000001  FD00:FA:D0:101::/64
+101.101.101.101 108         0x80000001  FD00:FA:D0:50::/64
+101.101.101.101 108         0x80000001  FD00:FA:D0:102::/64
+201.201.201.201 112         0x80000001  FD00:FA:D0:201::/64
+201.201.201.201 112         0x80000001  FD00:FA:D0:60::/64
+201.201.201.201 112         0x80000001  FD00:FA:D0:202::/64
+
+                Link (Type-8) Link States (Area 0)
+
+ADV Router      Age         Seq#        Link ID    Interface
+100.100.100.100 114         0x80000002  4          Fa0/0
+101.101.101.101 120         0x80000001  4          Fa0/0
+
+                Intra Area Prefix Link States (Area 0)
+
+ADV Router      Age         Seq#        Link ID    Ref-lstype  Ref-LSID
+100.100.100.100 74          0x80000004  0          0x2001      0
+101.101.101.101 74          0x80000001  4096       0x2002      4
+200.200.200.200 75          0x80000004  0          0x2001      0
+200.200.200.200 80          0x80000001  5120       0x2002      5
+201.201.201.201 78          0x80000001  4096       0x2002      4
+
+                Router Link States (Area 101)
+
+ADV Router      Age         Seq#        Fragment ID  Link count  Bits
+101.101.101.101 80          0x80000003  0            1           B
+102.102.102.102 84          0x80000003  0            1           None
+
+                Inter Area Prefix Link States (Area 101)
+
+ADV Router      Age         Seq#        Prefix
+101.101.101.101 112         0x80000001  FD00:FA:D0:100::/64
+101.101.101.101 72          0x80000001  FD00:FA:D0:120::/64
+101.101.101.101 72          0x80000001  FD00:FA:D0:200::/64
+101.101.101.101 72          0x80000001  FD00:FA:D0::/64
+101.101.101.101 72          0x80000001  FD00:FA:D0:202::/64
+101.101.101.101 72          0x80000001  FD00:FA:D0:60::/64
+101.101.101.101 72          0x80000001  FD00:FA:D0:201::/64
+
+                Link (Type-8) Link States (Area 101)
+
+ADV Router      Age         Seq#        Link ID    Interface
+101.101.101.101 116         0x80000002  5          Fa0/1
+101.101.101.101 116         0x80000002  6          Se0/0
+102.102.102.102 118         0x80000002  6          Se0/0
+
+                Intra Area Prefix Link States (Area 101)
+
+ADV Router      Age         Seq#        Link ID    Ref-lstype  Ref-LSID
+101.101.101.101 116         0x80000002  0          0x2001      0
+102.102.102.102 119         0x80000002  0          0x2001      0
+r101#
+r101#sh ipv6 ospf int fa 0/0
+FastEthernet0/0 is up, line protocol is up 
+  Link Local Address FE80::C003:DFF:FEEB:0, Interface ID 4
+  Area 0, Process ID 6, Instance ID 0, Router ID 101.101.101.101
+  Network Type BROADCAST, Cost: 1000
+  Transmit Delay is 1 sec, State DR, Priority 1 
+  Designated Router (ID) 101.101.101.101, local address FE80::C003:DFF:FEEB:0
+  Backup Designated router (ID) 100.100.100.100, local address FE80::C001:DFF:FECD:0
+  Timer intervals configured, Hello 10, Dead 40, Wait 40, Retransmit 5
+    Hello due in 00:00:07
+  Index 1/1/1, flood queue length 0
+  Next 0x0(0)/0x0(0)/0x0(0)
+  Last flood scan length is 0, maximum is 14
+  Last flood scan time is 0 msec, maximum is 0 msec
+  Neighbor Count is 1, Adjacent neighbor count is 1 
+    Adjacent with neighbor 100.100.100.100  (Backup Designated Router)
+  Suppress hello for 0 neighbor(s)
+r101#
+r101#sh ipv6 ospf neighbor
+
+Neighbor ID     Pri   State           Dead Time   Interface ID    Interface
+100.100.100.100   1   FULL/BDR        00:00:31    4               FastEthernet0/0
+102.102.102.102   1   FULL/  -        00:00:39    6               Serial0/0
+r101#
+r101#debug ipv6 ospf events
+  OSPFv3 events debugging is on
+r101#
+r101#debug ipv6 ospf hello          
+  OSPFv3 hello events debugging is on
+r101#
+00:05:12: OSPFv3: Rcv hello from 100.100.100.100 area 0 from FastEthernet0/0 FE80::C001:DFF:FECD:0 interface ID 4
+00:05:12: OSPFv3: End of hello processing
+00:05:12: OSPFv3: Send hello to FF02::5 area 101 on FastEthernet0/1 from FE80::C003:DFF:FEEB:1 interface ID 5
+00:05:13: OSPFv3: Send hello to FF02::5 area 0 on FastEthernet0/0 from FE80::C003:DFF:FEEB:0 interface ID 4
+r101#
+00:05:14: OSPFv3: Rcv hello from 102.102.102.102 area 101 from Serial0/0 FE80::C004:DFF:FEFA:0 interface ID 6
+00:05:14: OSPFv3: End of hello processing
+00:05:15: OSPFv3: Send hello to FF02::5 area 101 on Serial0/0 from FE80::C003:DFF:FEEB:0 interface ID 6
+r101#
+00:05:22: OSPFv3: Send hello to FF02::5 area 101 on FastEthernet0/1 from FE80::C003:DFF:FEEB:1 interface ID 5
+00:05:22: OSPFv3: Rcv hello from 100.100.100.100 area 0 from FastEthernet0/0 FE80::C001:DFF:FECD:0 interface ID 4
+00:05:22: OSPFv3: End of hello processing
+00:05:23: OSPFv3: Send hello to FF02::5 area 0 on FastEthernet0/0 from FE80::C003:DFF:FEEB:0 interface ID 4
+r101#
+00:05:24: OSPFv3: Send hello to FF02::5 area 101 on Serial0/0 from FE80::C003:DFF:FEEB:0 interface ID 6
+00:05:24: OSPFv3: Rcv hello from 102.102.102.102 area 101 from Serial0/0 FE80::C004:DFF:FEFA:0 interface ID 6
+00:05:24: OSPFv3: End of hello processing
+r101#
+00:05:32: OSPFv3: Rcv hello from 100.100.100.100 area 0 from FastEthernet0/0 FE80::C001:DFF:FECD:0 interface ID 4
+00:05:32: OSPFv3: End of hello processing
+00:05:32: OSPFv3: Send hello to FF02::5 area 101 on FastEthernet0/1 from FE80::C003:DFF:FEEB:1 interface ID 5
+00:05:32: OSPFv3: Send hello to FF02::5 area 0 on FastEthernet0/0 from FE80::C003:DFF:FEEB:0 interface ID 4
+r101#
+00:05:33: OSPFv3: Send hello to FF02::5 area 101 on Serial0/0 from FE80::C003:DFF:FEEB:0 interface ID 6
+00:05:33: OSPFv3: Rcv hello from 102.102.102.102 area 101 from Serial0/0 FE80::C004:DFF:FEFA:0 interface ID 6
+00:05:33: OSPFv3: End of hello processing
+r101#
+```
