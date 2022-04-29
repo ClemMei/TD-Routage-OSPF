@@ -2,11 +2,7 @@
 
 ## 5.1  Vérification de la configuration de votre routeur R101
 
-**Question 1** 
-
-* Quel type de routeur devez-vous paramétrer ?
-
-```bash
+```
 r101#sh version
 Cisco IOS Software, 3700 Software (C3725-ADVENTERPRISEK9-M), Version 12.4(15)T14, RELEASE SOFTWARE (fc2)
 Technical Support: http://www.cisco.com/techsupport
@@ -49,11 +45,16 @@ Configuration register is 0x2102
 r101#
 ```
 
+**Question 1**
+
+- Quel type de routeur devez-vous paramétrer ?
+  * Un routeur Cisco 3725 (R7000)
 * Quelle version d’IOS ?
+  * Version 12.4(15)T14
 
 ## 5.2  Configuration minimale de votre routeur
 
-```bash
+```
 r101#
 r101#conf t
 Enter configuration commands, one per line. End with CNTL/Z.
@@ -72,7 +73,7 @@ r101#
 
 ## 5.3  Attribution des adresses IP
 
-```bash
+```
 r101#conf t
 Enter configuration commands, one per line.  End with CNTL/Z.
 r101(config)#interf
@@ -116,7 +117,7 @@ Loopback0                  172.16.101.101  YES NVRAM  up                    up
 
 chacune des interfaces des routeurs voisins répondent au ping :  
 
-```bash
+```
 r101#ping 10.1.100.100
 
 Type escape sequence to abort.
@@ -140,7 +141,7 @@ r101#
 
 ## 5.4  Etat des interfaces VPC
 
-```bash
+```
 PC101> show
 
 NAME   IP/MASK              GATEWAY           MAC                LPORT  RHOST:PORT
@@ -420,8 +421,22 @@ r101#
 **Question 5**
 
 * Quels sont les indicateurs OSPF dans cet affichage ?
+  
+  * O - OSPF
+  
+  * IA - OSPF inter area 
+  
+  * N1 - OSPF NSSA external type 1
+  
+  * N2 - OSPF NSSA external type 2
+  
+  * E1 - OSPF external type 1 
+  
+  * E2 - OSPF external type 2
 
 * Lequel apparait dans votre table ? 
+  
+  * O - OSPF
 
 ---
 
@@ -469,10 +484,25 @@ r101#
 **Question 6**
 
 * Quels sont les groupes multicast que votre routeur a rejoint ?
+  
+  * OSPFIGP OSPFIGP All Routers
+  
+  * OSPFIGP OSPFIGP Designated Routers
 
 * Quelles adresses apparaissent dans la liste des groupes réservés ?
+  
+  * 224.0.0.5
+  
+  * 224.0.0.6
 
 * Quels sont les noms de ces adresses multicast et à quoi servent-elles ?    
+  
+  * Il s'agit d'adresses appartenant au  "IPv4 Multicast Address Space Registry"
+    La [fiche de l'IANA](https://www.iana.org/assignments/multicast-addresses/multicast-addresses.txt) décrit très bien leur utilité : 
+    *"the range of addresses between 224.0.0.0 and 224.0.0.255, inclusive,
+     is reserved for the use of routing protocols and other low-level
+     topology discovery or maintenance protocols, such as gateway discovery
+     and group membership reporting."* 
 
 ---
 
@@ -540,14 +570,15 @@ Serial0/0 is up, line protocol is up
 r101#
 ```
 
-| Interface | Type Réseau | Coût | Priorité | Numéro du DR | Numéro du BDR |
-|:---------:|:-----------:|:----:|:--------:|:------------:|:-------------:|
-| **Lo0**   |             |      |          |              |               |
-| **Fa0/0** |             |      |          |              |               |
-| **Fa0/1** |             |      |          |              |               |
-| **S0/0**  |             |      |          |              |               |
+| Interface | Type Réseau    | Coût | Priorité | Numéro du DR        | Numéro du BDR                               |
+|:---------:|:--------------:|:----:|:--------:|:-------------------:|:-------------------------------------------:|
+| **Lo0**   | LOOPBACK       | 1    | /        | /                   | /                                           |
+| **Fa0/0** | BROADCAST      | 10   | 1        | R102-172.16.101.102 | R101-172.16.101.101                         |
+| **Fa0/1** | BROADCAST      | 10   | 1        | 172.16.101.101      | No backup designated router on this network |
+| **S0/0**  | POINT_TO_POINT | 50   | /        | /                   | /                                           |
 
 * Calculez le coût OSPF du chemin pour atteindre l'interface loopback de R202 depuis R101
+  * R101-Fa0/0(10) + R100-fa0/1(10) + R200-Fa0/0(10) + R202-Lo0(1) = 31
 
 ---
 
@@ -590,11 +621,11 @@ r101#
 * Est-ce que le coût figurant dans la table de routage est le même que celui
   que vous avez calculé ? 
   
-  * Oui 
+  * Oui : 172.16.201.202 [110/**31**]
+
+* Voyez-vous des numéros d’aires dans la table de routage ? 
   
   * Non
-
-* Voyez-vous des numéros d’aires dans la table de routage ? o Oui o Non
 
 ---
 
@@ -626,18 +657,18 @@ r101#
 
 * Voyez-vous le numéro d’aire dans le résultat ?
   
-  * Oui
-  
-  * Non
+  * Oui : Area 0
 
 **Question 9**
 
 * Combien de routeurs ont injecté des informations dans la base de données ?
+  * 6
 
 **Question 10**
 
 * Quels sont les routeurs qui injectent des routes pour les réseaux
   FastEthernet (100 et 200) ?
+  * Les Designated Routers
 
 ---
 
@@ -655,10 +686,13 @@ r101#
 
 * Quelle commande garantirait qu'il ne devienne pas BDR si le DR tombait en
   panne ?
+  * *ip ospf priority 0*
 
 # 6. OSPF EN AIRES MULTIPLES
 
 ## 6.2  Schéma maquette
+
+Utilisez la commande suivante pour revoir la configuration OSPF de votre routeur :
 
 ```
 r101#show running-config | begin router
@@ -689,6 +723,8 @@ control-plane
 r101#
 ```
 
+Revenez en mode configuration et entrez dans la section routeur OSPF :
+
 ```
 r101#conf t                            
 Enter configuration commands, one per line.  End with CNTL/Z.
@@ -696,187 +732,18 @@ r101(config)#router ospf 101
 r101(config-router)#
 ```
 
+Supprimez l’instruction network qui affecte votre interface fa 0/1 à l’aire 0.
+
 ```
-r101(config-router)#no network 10.1.101.0 0.0.0.127 area 0
-r101(config-router)#no network 10.1.50.0 0.0.0.3 area 0
-r101(config-router)#no network 172.16.101.101 0.0.0.0 area 0
+r101(config-router)#f0/1 no network 10.1.101.0 0.0.0.127 area 0
+r101(config-router)#s0/0 no network 10.1.50.0 0.0.0.3 area 0
+r101(config-router)#loo0 no network 172.16.101.101 0.0.0.0 area 0
 r101(config-router)#
 00:07:43: %OSPF-5-ADJCHG: Process 101, Nbr 172.16.101.102 on Serial0/0 from FULL to DOWN, Neighbor Down: Interface down or detached
 r101(config-router)#
 ```
 
-```
-r101(config-router)#router-id 101.101.101.101
-Reload or use "clear ip ospf process" command, for this to take effect
-r101(config-router)#                     
-r101#
-00:06:29: %SYS-5-CONFIG_I: Configured from console by console
-r101#clear ip ospf process 
-Reset ALL OSPF processes? [no]: YES
-r101#
-00:06:41: %OSPF-5-ADJCHG: Process 101, Nbr 172.16.100.100 on FastEthernet0/0 from FULL to DOWN, Neighbor Down: Interface down or detached
-00:06:41: %OSPF-5-ADJCHG: Process 101, Nbr 172.16.101.102 on FastEthernet0/0 from FULL to DOWN, Neighbor Down: Interface down or detached
-r101#show ip protocols                 
-Routing Protocol is "ospf 101"
-  Outgoing update filter list for all interfaces is not set
-  Incoming update filter list for all interfaces is not set
-  Router ID 101.101.101.101
-  Number of areas in this router is 1. 1 normal 0 stub 0 nssa
-  Maximum path: 4
-  Routing for Networks:
-    10.1.100.0 0.0.0.255 area 0
- Reference bandwidth unit is 100 mbps
-  Routing Information Sources:
-    Gateway         Distance      Last Update
-    172.16.201.201       110      00:03:26
-    172.16.100.100       110      00:03:47
-    172.16.200.200       110      00:03:47
-    172.16.201.202       110      00:03:47
-    172.16.101.102       110      00:03:26
-  Distance: (default is 110)
-```
-
-```
-r102#conf t
-Enter configuration commands, one per line.  End with CNTL/Z.
-r102#conf t
-00:09:00: %SYS-5-CONFIG_I: Configured from console by console
-r102#conf t
-Enter configuration commands, one per line.  End with CNTL/Z.
-r102(config)#router ospf 102
-r102(config-router)#router-id 102.102.102.102
-Reload or use "clear ip ospf process" command, for this to take effect
-r102(config-router)#
-r102#
-00:10:04: %SYS-5-CONFIG_I: Configured from console by console
-r102#
-r102#clear ip ospf process
-Reset ALL OSPF processes? [no]: YES
-r102#
-00:10:32: %OSPF-5-ADJCHG: Process 102, Nbr 101.101.101.101 on FastEthernet0/0 from FULL to DOWN, Neighbor Down: Interface down or detached
-00:10:32: %OSPF-5-ADJCHG: Process 102, Nbr 172.16.100.100 on FastEthernet0/0 from FULL to DOWN, Neighbor Down: Interface down or detached
-00:10:32: %OSPF-5-ADJCHG: Process 102, Nbr 172.16.100.100 on FastEthernet0/0 from LOADING to FULL, Loading Done
-r102#show ip protocols 
-Routing Protocol is "ospf 102"
-  Outgoing update filter list for all interfaces is not set
-  Incoming update filter list for all interfaces is not set
-  Router ID 102.102.102.102
-  Number of areas in this router is 1. 1 normal 0 stub 0 nssa
-  Maximum path: 4
-  Routing for Networks:
-    10.1.50.0 0.0.0.3 area 0
-    10.1.100.0 0.0.0.255 area 0
-    10.1.101.128 0.0.0.127 area 0
-    172.16.101.102 0.0.0.0 area 0
- Reference bandwidth unit is 100 mbps
-  Routing Information Sources:
-    Gateway         Distance      Last Update
-    172.16.201.201       110      00:03:00
-    172.16.100.100       110      00:09:38
-    172.16.200.200       110      00:09:38
-    172.16.101.101       110      00:09:38
-    172.16.201.202       110      00:09:28
-  Distance: (default is 110)
-
-Routing Protocol is "ospf 101"
-  Outgoing update filter list for all interfaces is not set
-
-r102#
-```
-
-```
-r200#conf t
-Enter configuration commands, one per line.  End with CNTL/Z.
-r200(config)#router ospf 200
-r200(config-router)#router-
-r200(config-router)#router-id 200.200.200.200
-Reload or use "clear ip ospf process" command, for this to take effect
-r200(config-router)#
-r200#
-00:13:16: %SYS-5-CONFIG_I: Configured from console by console
-r200#clear ip ospf process
-Reset ALL OSPF processes? [no]: YES
-r200#
-00:13:27: %OSPF-5-ADJCHG: Process 200, Nbr 172.16.201.201 on FastEthernet0/0 from FULL to DOWN, Neighbor Down: Interface down or detached
-00:13:27: %OSPF-5-ADJCHG: Process 200, Nbr 172.16.201.202 on FastEthernet0/0 from FULL to DOWN, Neighbor Down: Interface down or detached
-00:13:27: %OSPF-5-ADJCHG: Process 200, Nbr 172.16.100.100 on Serial0/1 from FULL to DOWN, Neighbor Down: Interface down or detached
-00:13:27: %OSPF-5-ADJCHG: Process 200, Nbr 172.16.100.100 on Serial0/0 from FULL to DOWN, Neighbor Down: Interface down or detached
-00:13:27: %OSPF-5-ADJCHG: Process 200, Nbr 172.16.100.100 on FastEthernet0/1 from FULL to DOWN, Neighbor Down: Interface down or detached
-r200#
-00:13:27: %OSPF-5-ADJCHG: Process 200, Nbr 172.16.100.100 on Serial0/1 from LOADING to FULL, Loading Done
-00:13:27: %OSPF-5-ADJCHG: Process 200, Nbr 172.16.100.100 on Serial0/0 from LOADING to FULL, Loading Done
-00:13:27: %OSPF-5-ADJCHG: Process 200, Nbr 172.16.100.100 on FastEthernet0/1 from LOADING to FULL, Loading Done
-00:13:27: %OSPF-5-ADJCHG: Process 200, Nbr 172.16.201.201 on FastEthernet0/0 from LOADING to FULL, Loading Done
-00:13:27: %OSPF-5-ADJCHG: Process 200, Nbr 172.16.201.202 on FastEthernet0/0 from LOADING to FULL, Loading Done
-r200#show ip protocols
-Routing Protocol is "ospf 200"
-  Outgoing update filter list for all interfaces is not set
-  Incoming update filter list for all interfaces is not set
-  Router ID 200.200.200.200
-  Number of areas in this router is 1. 1 normal 0 stub 0 nssa
-  Maximum path: 4
-  Routing for Networks:
-    10.0.0.0 0.0.0.255 area 0
-    10.0.255.0 0.0.0.3 area 0
-    10.0.255.4 0.0.0.3 area 0
-    10.2.200.0 0.0.0.255 area 0
-    172.16.200.200 0.0.0.0 area 0
- Reference bandwidth unit is 100 mbps
-  Routing Information Sources:
-    Gateway         Distance      Last Update
-    102.102.102.102      110      00:00:03
-    172.16.101.101       110      00:11:02
-    172.16.201.201       110      00:00:03
-    172.16.100.100       110      00:00:03
-    172.16.101.102       110      00:10:44
-    172.16.201.202       110      00:00:03
-  Distance: (default is 110)
-
-r200#
-```
-
-```
-r201#conf t
-Enter configuration commands, one per line.  End with CNTL/Z.
-r201(config)#router ospf 201
-r201(config-router)#router-id 201.201.201.201
-Reload or use "clear ip ospf process" command, for this to take effect
-r201(config-router)#
-r201#clear o
-00:14:28: %SYS-5-CONFIG_I: Configured from console by console
-r201#clear ip ospf process
-Reset ALL OSPF processes? [no]: YES
-r201#
-00:14:46: %OSPF-5-ADJCHG: Process 201, Nbr 172.16.201.202 on FastEthernet0/0 from FULL to DOWN, Neighbor Down: Interface down or detached
-00:14:46: %OSPF-5-ADJCHG: Process 201, Nbr 200.200.200.200 on FastEthernet0/0 from FULL to DOWN, Neighbor Down: Interface down or detached
-00:14:46: %OSPF-5-ADJCHG: Process 201, Nbr 172.16.201.202 on Serial0/0 from FULL to DOWN, Neighbor Down: Interface down or detached
-00:14:46: %OSPF-5-ADJCHG: Process 201, Nbr 172.16.201.202 on Serial0/0 from LOADING to FULL, Loading Done
-r201#show ip protocols
-Routing Protocol is "ospf 201"
-  Outgoing update filter list for all interfaces is not set
-  Incoming update filter list for all interfaces is not set
-  Router ID 201.201.201.201
-  Number of areas in this router is 2. 1 normal 1 stub 0 nssa
-  Maximum path: 4
-  Routing for Networks:
-    10.2.60.0 0.0.0.3 area 0
-    10.2.200.0 0.0.0.255 area 0
-    10.2.201.0 0.0.0.127 area 0
-    172.16.201.201 0.0.0.0 area 0
- Reference bandwidth unit is 100 mbps
-  Routing Information Sources:
-    Gateway         Distance      Last Update
-    200.200.200.200      110      00:01:18
-    102.102.102.102      110      00:00:38
-    172.16.100.100       110      00:00:38
-    172.16.101.101       110      00:12:17
-    172.16.200.200       110      00:13:49
-    172.16.101.102       110      00:11:59
-    172.16.201.202       110      00:13:49
-  Distance: (default is 110)
-
-r201#
-```
+Redéfinir l’Id de vos 6 routeurs OSPF (exemple pour r202):
 
 ```
 r202#conf t
@@ -918,6 +785,8 @@ Routing Protocol is "ospf 202"
 
 r202#
 ```
+
+Revenir dans la partie routeur de votre configuration et utilisez la syntaxe suivante pour ajouter ces trois interfaces à votre nouvelle aire (utilisez l’historique des commandes pour éviter de tout retaper) ; Exemple pour r101 :
 
 ```
 r101#conf t
@@ -986,161 +855,9 @@ r101#
 | Serial 0/0       | 101           |
 | Loopback 0       | 101           |
 
-```
-r102#show running-config | begin router
-router ospf 102
- router-id 102.102.102.102
- log-adjacency-changes
- network 10.1.50.0 0.0.0.3 area 0
- network 10.1.100.0 0.0.0.255 area 0
- network 10.1.101.128 0.0.0.127 area 0
- network 172.16.101.102 0.0.0.0 area 0
-!
-router ospf 101
- log-adjacency-changes
-!
-ip forward-protocol nd
-!
-!
-ip http server
-no ip http secure-server
-!
-no cdp log mismatch duplex
-!
-!
-!
-!
-!
+---
 
-r102#
-r102#conf t 
-Enter configuration commands, one per line.  End with CNTL/Z.
-r102(config)#router ospf 102
-r102(config-router)#no network 10.1.50.0 0.0.0.3 area 0
-r102(config-router)#no network 10.1.101.128 0.0.0.127 area 0
-r102(config-router)#no network 172.16.101.102 0.0.0.0 area 0
-r102(config-router)#network 10.1.50.0 0.0.0.3 area 101      
-00:37:26: %OSPF-5-ADJCHG: Process 102, Nbr 101.101.101.101 on Serial0/0 from LOADING to FULL, Loading Done
-r102(config-router)#network 10.1.101.128 0.0.0.127 area 101 
-r102(config-router)#network 172.16.101.102 0.0.0.0 area 101   
-r102(config-router)#
-00:38:04: %SYS-5-CONFIG_I: Configured from console by console
-r102#show running-config | begin router
-router ospf 102
- router-id 102.102.102.102
- log-adjacency-changes
- network 10.1.50.0 0.0.0.3 area 101
- network 10.1.100.0 0.0.0.255 area 0
- network 10.1.101.128 0.0.0.127 area 101
- network 172.16.101.102 0.0.0.0 area 101
-!
-router ospf 101
- log-adjacency-changes
-!
-ip forward-protocol nd
-!
-!
-ip http server
-no ip http secure-server
-!
-no cdp log mismatch duplex
-!
-!
-!
-!
-!
-
-r102#
-```
-
-```
-r201#                 
-r201#conf t
-Enter configuration commands, one per line.  End with CNTL/Z.
-r201(config)#router ospf 201
-r201(config-router)#no network 10.2.60.0 0.0.0.3 area 0
-r201(config-router)#
-00:43:12: %OSPF-5-ADJCHG: Process 201, Nbr 202.202.202.202 on Serial0/0 from FULL to DOWN, Neighbor Down: Interface down or detached
-r201(config-router)#no network 10.2.201.0 0.0.0.127 area 0
-r201(config-router)#no network 172.16.201.201 0.0.0.0 area 0
-r201(config-router)#network 10.2.60.0 0.0.0.3 area 201      
-00:44:03: %OSPF-4-ERRRCV: Received invalid packet: mismatch area ID, from backbone area must be virtual-link but not found from 10.2.60.2, Serial0/0
-r201(config-router)#network 10.2.201.0 0.0.0.127 area 201   
-00:44:22: %OSPF-4-ERRRCV: Received invalid packet: mismatch area ID, from backbone area must be virtual-link but not found from 10.2.60.2, Serial0/0
-r201(config-router)#network 172.16.201.201 0.0.0.0 area 201
-r201(config-router)#                                       
-00:44:50: %OSPF-4-ERRRCV: Received invalid packet: mismatch area ID, from backbone area must be virtual-link but not found from 10.2.60.2, Serial0/0
-r201#show running-config | begin router     
-router ospf 201
- router-id 201.201.201.201
- log-adjacency-changes
- area 201 stub
- network 10.2.60.0 0.0.0.3 area 201
- network 10.2.200.0 0.0.0.255 area 0
- network 10.2.201.0 0.0.0.127 area 201
- network 172.16.201.201 0.0.0.0 area 201
-!
-ip forward-protocol nd
-!
-!
-ip http server
-no ip http secure-server
-!
-no cdp log mismatch duplex
-!
-!
-!
-!
-!
-!
-control-plane
- --More-- 
-00:45:09: %OSPF-4-ERRRCV: Received invalid packet: mismatch area ID, from backbone area must be virtual-link but not found from 10.2.60.2, Serial0/0
-
-r201#
-```
-
-```
-r202#
-r202#conf t
-Enter configuration commands, one per line.  End with CNTL/Z.
-r202(config)#router ospf 202
-r202(config-router)#no network 10.2.60.0 0.0.0.3 area 0
-r202(config-router)#no network 10.2.201.128 0.0.0.127 area 0
-r202(config-router)#no network 172.16.201.202 0.0.0.0 area 0
-r202(config-router)#network 10.2.60.0 0.0.0.3 area 201
-r202(config-router)#network 10.2.201.128 0.0.0.127 area 201
-r202(config-router)#network 172.16.201.202 0.0.0.0 area 201
-r202(config-router)#
-r202#show ip protocols
-*Mar  1 00:49:34.251: %SYS-5-CONFIG_I: Configured from console by console
-r202#show running-config | begin router
-router ospf 202
- router-id 202.202.202.202
- log-adjacency-changes
- network 10.2.60.0 0.0.0.3 area 201
- network 10.2.200.0 0.0.0.255 area 0
- network 10.2.201.128 0.0.0.127 area 201
- network 172.16.201.202 0.0.0.0 area 201
-!
-ip forward-protocol nd
-!
-!
-ip http server
-no ip http secure-server
-!
-no cdp log mismatch duplex
-!
-!
-!
-!
-!
-!
-control-plane
-!
-
-r202#
-```
+Exemple pour r101 : 
 
 ```
 r101#clear ip ospf process 
@@ -1258,52 +975,11 @@ r102#
 **Question 12**
 
 * Quelle est la différence entre les routes marquées *O IA* et les routes marquées seulement *O* ou *C* ?
+  * O IA : Routes qui ont pour origine une autre aire
+  * O : Routes générées à l'intérieur d'une area 
+  * C : Route directement connectée au routeur 
 
 ---
-
-```
-R100#show ip ospf database
-
-            OSPF Router with ID (100.100.100.100) (Process ID 100)
-
-                Router Link States (Area 0)
-
-Link ID         ADV Router      Age         Seq#       Checksum Link count
-101.101.101.101 101.101.101.101 665         0x80000006 0x004E02 1
-102.102.102.102 102.102.102.102 658         0x80000008 0x000C39 1
-100.100.100.100 100.100.100.100 669         0x8000000B 0x000D40 7
-200.200.200.200 200.200.200.200 629         0x80000008 0x005B30 7
-201.201.201.201 201.201.201.201 631         0x80000002 0x00BAE0 1
-202.202.202.202 202.202.202.202 630         0x80000002 0x007C16 1
-
-                Net Link States (Area 0)
-
-Link ID         ADV Router       Age         Seq#       Checksum
-10.0.0.100      100.100.100.100  694         0x80000001 0x006934
-10.1.100.100    100.100.100.100  659         0x80000002 0x001017
-10.2.200.202    202.202.202.202  630         0x80000001 0x00E80D
-
-                Summary Net Link States (Area 0)
-
-Link ID         ADV Router      Age         Seq#       Checksum
-10.1.50.0       101.101.101.101 708         0x80000001 0x00D466
-10.1.50.0       102.102.102.102 1557        0x80000001 0x00B680
-10.1.101.0      101.101.101.101 709         0x80000001 0x002587
-10.1.101.0      102.102.102.102 1557        0x80000001 0x00FC79
-10.1.101.128    101.101.101.101 1547        0x80000001 0x0016E3
-10.1.101.128    102.102.102.102 1547        0x80000001 0x000226
-10.2.60.0       201.201.201.201 683         0x80000001 0x009608
-10.2.60.0       202.202.202.202 667         0x80000001 0x007822
-10.2.201.0      201.201.201.201 683         0x80000001 0x0005B0
-10.2.201.128    202.202.202.202 667         0x80000001 0x00E14F
-172.16.101.101  101.101.101.101 709         0x80000001 0x00DA44
-172.16.101.101  102.102.102.102 1557        0x80000001 0x00B236
-172.16.101.102  101.101.101.101 1530        0x80000001 0x00C625
-172.16.101.102  102.102.102.102 1530        0x80000001 0x00B267
-172.16.201.201  201.201.201.201 683         0x80000001 0x00DAE9
-172.16.201.202  202.202.202.202 668         0x80000001 0x00B20D
-R100# 
-```
 
 ```
 r101#show ip ospf database 
@@ -1383,93 +1059,13 @@ Link ID         ADV Router      Age         Seq#       Checksum
 r101# 
 ```
 
-```
-r102#show ip ospf database 
-
-            OSPF Router with ID (10.1.101.129) (Process ID 101)
-
-            OSPF Router with ID (102.102.102.102) (Process ID 102)
-
-                Router Link States (Area 0)
-
-Link ID         ADV Router      Age         Seq#       Checksum Link count
-101.101.101.101 101.101.101.101 612         0x80000006 0x004E02 1
-102.102.102.102 102.102.102.102 604         0x80000008 0x000C39 1
-100.100.100.100 100.100.100.100 617         0x8000000B 0x000D40 7
-200.200.200.200 200.200.200.200 577         0x80000008 0x005B30 7
-201.201.201.201 201.201.201.201 579         0x80000002 0x00BAE0 1
-202.202.202.202 202.202.202.202 578         0x80000002 0x007C16 1
-
-                Net Link States (Area 0)
-
-Link ID         ADV Router      Age         Seq#       Checksum
-10.0.0.100      100.100.100.100 643         0x80000001 0x006934
-10.1.100.100    100.100.100.100 607         0x80000002 0x001017
-10.2.200.202    202.202.202.202 579         0x80000001 0x00E80D
-
-                Summary Net Link States (Area 0)
-
-Link ID         ADV Router      Age         Seq#       Checksum
-10.1.50.0       101.101.101.101 655         0x80000001 0x00D466
-10.1.50.0       102.102.102.102 646         0x80000001 0x00B680
-10.1.101.0      101.101.101.101 657         0x80000001 0x002587
-10.1.101.0      102.102.102.102 646         0x80000001 0x00FC79
-10.1.101.128    101.101.101.101 637         0x80000001 0x0016E3
-10.1.101.128    102.102.102.102 646         0x80000001 0x000226
-10.2.60.0       201.201.201.201 631         0x80000001 0x009608
-10.2.60.0       202.202.202.202 615         0x80000001 0x007822
-10.2.201.0      201.201.201.201 631         0x80000001 0x0005B0
-10.2.201.128    202.202.202.202 615         0x80000001 0x00E14F
-172.16.101.101  101.101.101.101 657         0x80000001 0x00DA44
-172.16.101.101  102.102.102.102 646         0x80000001 0x00B236
-172.16.101.102  101.101.101.101 637         0x80000001 0x00C625
-172.16.101.102  102.102.102.102 646         0x80000001 0x00B267
-172.16.201.201  201.201.201.201 633         0x80000001 0x00DAE9
-172.16.201.202  202.202.202.202 617         0x80000001 0x00B20D
-
-                Router Link States (Area 101)
-
-Link ID         ADV Router      Age         Seq#       Checksum Link count
-101.101.101.101 101.101.101.101 653         0x80000005 0x004E8C 4
-102.102.102.102 102.102.102.102 642         0x80000004 0x00AAAA 4
-
-                Summary Net Link States (Area 101)
-
-Link ID         ADV Router      Age         Seq#       Checksum
-10.0.0.0        101.101.101.101 615         0x80000001 0x00ED9B
-10.0.0.0        102.102.102.102 597         0x80000001 0x00CFB5
-10.0.255.0      101.101.101.101 615         0x80000001 0x006DF6
-10.0.255.0      102.102.102.102 597         0x80000001 0x004F11
-10.0.255.4      101.101.101.101 615         0x80000001 0x00D180
-10.0.255.4      102.102.102.102 597         0x80000001 0x00B39A
-10.1.100.0      101.101.101.101 658         0x80000001 0x002D01
-10.1.100.0      102.102.102.102 647         0x80000001 0x000F1B
-10.2.60.0       101.101.101.101 566         0x80000001 0x00878A
-10.2.60.0       102.102.102.102 565         0x80000001 0x0069A4
-10.2.200.0      101.101.101.101 616         0x80000001 0x00991B
-10.2.200.0      102.102.102.102 598         0x80000001 0x007B35
-10.2.201.0      101.101.101.101 566         0x80000001 0x00F533
-10.2.201.0      102.102.102.102 565         0x80000001 0x00D74D
-10.2.201.128    101.101.101.101 566         0x80000001 0x00F0B7
-10.2.201.128    102.102.102.102 565         0x80000001 0x00D2D1
-172.16.100.100  101.101.101.101 616         0x80000001 0x0054C2
-172.16.100.100  102.102.102.102 598         0x80000001 0x0036DC
-172.16.200.200  101.101.101.101 616         0x80000001 0x007CC7
-172.16.200.200  102.102.102.102 598         0x80000001 0x005EE1
-172.16.201.201  101.101.101.101 566         0x80000001 0x00CB6C
-172.16.201.201  102.102.102.102 565         0x80000001 0x00AD86
-172.16.201.202  101.101.101.101 566         0x80000001 0x00C175
-172.16.201.202  102.102.102.102 566         0x80000001 0x00A38F
-r102#   
-```
-
 | Type de LSA       | Nombre dans l'aire 0 | Nombre dans votre aire |
-|:----------------- | -------------------- | ---------------------- |
-| 1 Router          |                      |                        |
-| 2 Network         |                      |                        |
-| 3 Summary Network |                      |                        |
-| 4 ASBR Summary    |                      |                        |
-| 5 External        |                      |                        |
+|:----------------- |:--------------------:|:----------------------:|
+| 1 Router          | 6                    | 2                      |
+| 2 Network         | 3                    | 0                      |
+| 3 Summary Network | 16                   | 24                     |
+| 4 ASBR Summary    | 0                    | 0                      |
+| 5 External        | 0                    | 0                      |
 
 ## 6.3  Configurer l’agrégation des routes
 
@@ -1755,101 +1351,11 @@ r102#
 
 **Question 13**
 
-* Le nombre de LSA de type 3 pour votre aire a-t-il diminué depuis la dernière
-
-fois que vous avez consulté la base ?
+* Le nombre de LSA de type 3 pour votre aire a-t-il diminué depuis la dernière fois que vous avez consulté la base ?
+  * Non,  cela dit j'estime que cela aurait du être le cas.
+    J'associe ce comportement au fait que soit je n'ai pas laissé assez de temps entre les deux consultations, soit j'ai commis une erreur dans ma configuration.
 
 ## 6.4  Créer une aire terminale
-
-```
-r102#conf t
-Enter configuration commands, one per line.  End with CNTL/Z.
-r102(config)#interface fastEthernet 0/0
-r102(config-if)#shut
-r102(config-if)#
-02:07:53: %OSPF-5-ADJCHG: Process 102, Nbr 100.100.100.100 on FastEthernet0/0 from FULL to DOWN, Neighbor Down: Interface down or detached
-02:07:53: %OSPF-5-ADJCHG: Process 102, Nbr 101.101.101.101 on FastEthernet0/0 from FULL to DOWN, Neighbor Down: Interface down or detached
-r102(config-if)#
-02:07:55: %LINK-5-CHANGED: Interface FastEthernet0/0, changed state to administratively down
-02:07:56: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/0, changed state to down
-r102(config-if)#
-r102#conf t
-Enter configuration commands, one per line.  End with CNTL/Z.
-r102(config)#router ospf 102
-r102(config-router)#no network 10.1.100.0 0.0.0.255 area 0
-r102(config-router)#
-r102#
-02:08:42: %SYS-5-CONFIG_I: Configured from console by console
-r102#
-
-r102#show ip route
-Codes: C - connected, S - static, R - RIP, M - mobile, B - BGP
-       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
-       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
-       E1 - OSPF external type 1, E2 - OSPF external type 2
-       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
-       ia - IS-IS inter area, * - candidate default, U - per-user static route
-       o - ODR, P - periodic downloaded static route
-
-Gateway of last resort is not set
-
-     172.16.0.0/32 is subnetted, 6 subnets
-O IA    172.16.201.201 [110/81] via 10.1.50.1, 00:02:16, Serial0/0
-O IA    172.16.200.200 [110/71] via 10.1.50.1, 00:02:16, Serial0/0
-O       172.16.101.101 [110/51] via 10.1.50.1, 00:02:16, Serial0/0
-O IA    172.16.100.100 [110/61] via 10.1.50.1, 00:02:16, Serial0/0
-O IA    172.16.201.202 [110/81] via 10.1.50.1, 00:02:16, Serial0/0
-C       172.16.101.102 is directly connected, Loopback0
-     10.0.0.0/8 is variably subnetted, 11 subnets, 3 masks
-O IA    10.0.0.0/24 [110/70] via 10.1.50.1, 00:02:17, Serial0/0
-O IA    10.2.60.0/30 [110/130] via 10.1.50.1, 00:02:17, Serial0/0
-C       10.1.50.0/30 is directly connected, Serial0/0
-O IA    10.2.201.128/25 [110/90] via 10.1.50.1, 00:02:17, Serial0/0
-O       10.1.101.0/25 [110/60] via 10.1.50.1, 00:02:17, Serial0/0
-O IA    10.1.100.0/24 [110/60] via 10.1.50.1, 00:02:19, Serial0/0
-O IA    10.2.200.0/24 [110/80] via 10.1.50.1, 00:02:19, Serial0/0
-O IA    10.2.201.0/25 [110/90] via 10.1.50.1, 00:02:19, Serial0/0
-C       10.1.101.128/25 is directly connected, FastEthernet0/1
-O IA    10.0.255.4/30 [110/124] via 10.1.50.1, 00:02:19, Serial0/0
-O IA    10.0.255.0/30 [110/110] via 10.1.50.1, 00:02:19, Serial0/0
-```
-
-```
-r101#show ip route
-Codes: C - connected, S - static, R - RIP, M - mobile, B - BGP
-       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
-       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
-       E1 - OSPF external type 1, E2 - OSPF external type 2
-       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
-       ia - IS-IS inter area, * - candidate default, U - per-user static route
-       o - ODR, P - periodic downloaded static route
-
-Gateway of last resort is not set
-
-     172.16.0.0/16 is variably subnetted, 7 subnets, 2 masks
-O IA    172.16.201.201/32 [110/31] via 10.1.100.100, 00:17:11, FastEthernet0/0
-O       172.16.200.200/32 [110/21] via 10.1.100.100, 00:17:11, FastEthernet0/0
-C       172.16.101.101/32 is directly connected, Loopback0
-O       172.16.100.100/32 [110/11] via 10.1.100.100, 00:17:11, FastEthernet0/0
-O IA    172.16.201.202/32 [110/31] via 10.1.100.100, 00:17:11, FastEthernet0/0
-O       172.16.101.102/32 [110/51] via 10.1.50.2, 00:17:11, Serial0/0
-O       172.16.101.0/24 is a summary, 00:17:12, Null0
-     10.0.0.0/8 is variably subnetted, 12 subnets, 3 masks
-O       10.0.0.0/24 [110/20] via 10.1.100.100, 00:17:12, FastEthernet0/0
-O IA    10.2.60.0/30 [110/80] via 10.1.100.100, 00:03:29, FastEthernet0/0
-C       10.1.50.0/30 is directly connected, Serial0/0
-O IA    10.2.201.128/25 [110/40] via 10.1.100.100, 00:17:12, FastEthernet0/0
-C       10.1.101.0/25 is directly connected, FastEthernet0/1
-O       10.1.101.0/24 is a summary, 00:17:13, Null0
-C       10.1.100.0/24 is directly connected, FastEthernet0/0
-O       10.2.200.0/24 [110/30] via 10.1.100.100, 00:17:13, FastEthernet0/0
-O IA    10.2.201.0/25 [110/40] via 10.1.100.100, 00:17:13, FastEthernet0/0
-O       10.1.101.128/25 [110/60] via 10.1.50.2, 00:17:13, Serial0/0
-O       10.0.255.4/30 [110/74] via 10.1.100.100, 00:17:13, FastEthernet0/0
-O       10.0.255.0/30 [110/60] via 10.1.100.100, 00:17:13, FastEthernet0/0
-r101#
-r101#
-```
 
 ```
 r202#conf t
@@ -1870,7 +1376,6 @@ r202(config-router)#no network 10.2.200.0 0.0.0.255 area 0
 r202(config-router)#
 r202#
 *Mar  1 02:16:13.687: %SYS-5-CONFIG_I: Configured from console by console
-r202#show ip route
 r202#show ip route 
 Codes: C - connected, S - static, R - RIP, M - mobile, B - BGP
        D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
@@ -1889,119 +1394,12 @@ C       10.2.60.0/30 is directly connected, Serial0/0
 C       10.2.201.128/25 is directly connected, FastEthernet0/1
 ```
 
-```
-r201#show ip route
-Codes: C - connected, S - static, R - RIP, M - mobile, B - BGP
-       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
-       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
-       E1 - OSPF external type 1, E2 - OSPF external type 2
-       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
-       ia - IS-IS inter area, * - candidate default, U - per-user static route
-       o - ODR, P - periodic downloaded static route
-
-Gateway of last resort is not set
-
-     172.16.0.0/16 is variably subnetted, 4 subnets, 2 masks
-C       172.16.201.201/32 is directly connected, Loopback0
-O       172.16.200.200/32 [110/11] via 10.2.200.200, 01:24:00, FastEthernet0/0
-O       172.16.100.100/32 [110/21] via 10.2.200.200, 01:10:25, FastEthernet0/0
-O IA    172.16.101.0/24 [110/31] via 10.2.200.200, 00:08:40, FastEthernet0/0
-     10.0.0.0/8 is variably subnetted, 9 subnets, 3 masks
-O       10.0.0.0/24 [110/20] via 10.2.200.200, 01:10:25, FastEthernet0/0
-C       10.2.60.0/30 is directly connected, Serial0/0
-O IA    10.1.50.0/30 [110/80] via 10.2.200.200, 00:08:41, FastEthernet0/0
-O IA    10.1.101.0/24 [110/40] via 10.2.200.200, 00:08:41, FastEthernet0/0
-O       10.1.100.0/24 [110/30] via 10.2.200.200, 00:08:41, FastEthernet0/0
-C       10.2.200.0/24 is directly connected, FastEthernet0/0
-C       10.2.201.0/25 is directly connected, FastEthernet0/1
-O       10.0.255.4/30 [110/74] via 10.2.200.200, 01:24:02, FastEthernet0/0
-O       10.0.255.0/30 [110/60] via 10.2.200.200, 01:24:02, FastEthernet0/0
-r201#
-```
-
 **Question 14**
 
 * En quoi ces routes diffèrent-elles des routes OSPF ?
+  * Elles diffèrent dans le sens où elles sont directement connectées et donc plus taguées OSPF
 
 ---
-
-```
-r102#show ip protocol
-Routing Protocol is "ospf 102"
-  Outgoing update filter list for all interfaces is not set
-  Incoming update filter list for all interfaces is not set
-  Router ID 102.102.102.102
-  Number of areas in this router is 1. 1 normal 0 stub 0 nssa
-  Maximum path: 4
-  Routing for Networks:
-    10.1.50.0 0.0.0.3 area 101
-    10.1.101.128 0.0.0.127 area 101
-    172.16.101.102 0.0.0.0 area 101
- Reference bandwidth unit is 100 mbps
-  Routing Information Sources:
-    Gateway         Distance      Last Update
-    102.102.102.102      110      00:11:20
-    100.100.100.100      110      00:11:20
-    101.101.101.101      110      00:02:37
-    202.202.202.202      110      00:11:20
-    201.201.201.201      110      00:11:20
-    200.200.200.200      110      00:11:20
-    172.16.201.201       110      01:57:05
-    172.16.100.100       110      01:18:40
-    172.16.200.200       110      02:00:01
-    172.16.101.101       110      02:10:19
-    Gateway         Distance      Last Update
-    172.16.201.202       110      01:55:48
-  Distance: (default is 110)
-
-Routing Protocol is "ospf 101"
-  Outgoing update filter list for all interfaces is not set
-  Incoming update filter list for all interfaces is not set
-  Router ID 10.1.101.129
-  Number of areas in this router is 0. 0 normal 0 stub 0 nssa
-  Maximum path: 4
-  Routing for Networks:
- Reference bandwidth unit is 100 mbps
-  Routing Information Sources:
-    Gateway         Distance      Last Update
-  Distance: (default is 110)
-
-r102#
-```
-
-```
-r101#show ip protocol
-Routing Protocol is "ospf 101"
-  Outgoing update filter list for all interfaces is not set
-  Incoming update filter list for all interfaces is not set
-  Router ID 101.101.101.101
-  It is an area border router
-  Number of areas in this router is 2. 2 normal 0 stub 0 nssa
-  Maximum path: 4
-  Routing for Networks:
-    10.1.50.0 0.0.0.3 area 101
-    10.1.100.0 0.0.0.255 area 0
-    10.1.101.0 0.0.0.127 area 101
-    172.16.101.101 0.0.0.0 area 101
- Reference bandwidth unit is 100 mbps
-  Routing Information Sources:
-    Gateway         Distance      Last Update
-    101.101.101.101      110      00:17:38
-    100.100.100.100      110      00:17:38
-    202.202.202.202      110      00:03:55
-    201.201.201.201      110      00:17:38
-    200.200.200.200      110      00:17:38
-    102.102.102.102      110      00:17:38
-    172.16.201.201       110      01:58:13
-    172.16.100.100       110      01:20:06
-    Gateway         Distance      Last Update
-    172.16.200.200       110      02:01:11
-    172.16.201.202       110      01:56:56
-    172.16.101.102       110      02:04:58
-  Distance: (default is 110)
-
-r101#
-```
 
 ```
 r202#show ip protocol
@@ -2069,6 +1467,8 @@ r201#
 **Question 15**
 
 * Quelle est la différence majeure entre les deux bases de données ?
+  
+  Le routeur pair ne contient plus de routes vers l'area 0
 
 ---
 
@@ -2083,48 +1483,6 @@ r101(config-router)#
 r101#
 02:19:34: %SYS-5-CONFIG_I: Configured from console by console
 r101#
-```
-
-```
-r102#conf t
-Enter configuration commands, one per line.  End with CNTL/Z.
-r102(config)#router ospfd
-02:20:08: %OSPF-5-ADJCHG: Process 102, Nbr 101.101.101.101 on Serial0/0 from FULL to DOWN, Neighbor Down: Dead timer expired
-r102(config)#router ospf 102
-r102(config-router)#area 101 stub                         
-r102(config-router)#
-02:20:25: %OSPF-5-ADJCHG: Process 102, Nbr 101.101.101.101 on Serial0/0 from INIT to DOWN, Neighbor Down: Adjacency forced to reset
-r102(config-router)#
-r102#
-02:20:27: %SYS-5-CONFIG_I: Configured from console by console
-02:20:28: %OSPF-5-ADJCHG: Process 102, Nbr 101.101.101.101 on Serial0/0 from LOADING to FULL, Loading Done
-r102#
-```
-
-```
-r201#conf t
-Enter configuration commands, one per line.  End with CNTL/Z.
-r201(config)#router ospf 201
-r201(config-router)#area 201 stub
-r201(config-router)#
-r201#
-02:21:25: %SYS-5-CONFIG_I: Configured from console by console
-r201#
-02:22:09: %OSPF-5-ADJCHG: Process 201, Nbr 202.202.202.202 on Serial0/0 from LOADING to FULL, Loading Done
-r201#
-```
-
-```
-r202#conf t
-Enter configuration commands, one per line.  End with CNTL/Z.
-r202(config)#router ospf 202
-r202(config-router)#area 201 stub
-r202(config-router)#
-r202#
-*Mar  1 02:22:08.271: %SYS-5-CONFIG_I: Configured from console by console
-r202#
-*Mar  1 02:22:09.595: %OSPF-5-ADJCHG: Process 202, Nbr 201.201.201.201 on Serial0/0 from LOADING to FULL, Loading Done
-r202#
 ```
 
 ```
@@ -2198,235 +1556,22 @@ O*IA 0.0.0.0/0 [110/51] via 10.1.50.1, 00:03:09, Serial0/0
 r102#
 ```
 
-```
-r201#show ip route
-Codes: C - connected, S - static, R - RIP, M - mobile, B - BGP
-       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
-       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
-       E1 - OSPF external type 1, E2 - OSPF external type 2
-       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
-       ia - IS-IS inter area, * - candidate default, U - per-user static route
-       o - ODR, P - periodic downloaded static route
-
-Gateway of last resort is not set
-
-     172.16.0.0/16 is variably subnetted, 5 subnets, 2 masks
-C       172.16.201.201/32 is directly connected, Loopback0
-O       172.16.200.200/32 [110/11] via 10.2.200.200, 01:30:49, FastEthernet0/0
-O       172.16.100.100/32 [110/21] via 10.2.200.200, 01:17:14, FastEthernet0/0
-O       172.16.201.202/32 [110/51] via 10.2.60.2, 00:01:45, Serial0/0
-O IA    172.16.101.0/24 [110/31] via 10.2.200.200, 00:15:29, FastEthernet0/0
-     10.0.0.0/8 is variably subnetted, 10 subnets, 3 masks
-O       10.0.0.0/24 [110/20] via 10.2.200.200, 01:17:15, FastEthernet0/0
-C       10.2.60.0/30 is directly connected, Serial0/0
-O IA    10.1.50.0/30 [110/80] via 10.2.200.200, 00:15:30, FastEthernet0/0
-O       10.2.201.128/25 [110/60] via 10.2.60.2, 00:01:47, Serial0/0
-O IA    10.1.101.0/24 [110/40] via 10.2.200.200, 00:15:30, FastEthernet0/0
-O       10.1.100.0/24 [110/30] via 10.2.200.200, 00:15:30, FastEthernet0/0
-C       10.2.200.0/24 is directly connected, FastEthernet0/0
-C       10.2.201.0/25 is directly connected, FastEthernet0/1
-O       10.0.255.4/30 [110/74] via 10.2.200.200, 01:30:51, FastEthernet0/0
-O       10.0.255.0/30 [110/60] via 10.2.200.200, 01:30:51, FastEthernet0/0
-r201#
-```
-
-```
-r202#show ip route
-Codes: C - connected, S - static, R - RIP, M - mobile, B - BGP
-       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
-       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
-       E1 - OSPF external type 1, E2 - OSPF external type 2
-       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
-       ia - IS-IS inter area, * - candidate default, U - per-user static route
-       o - ODR, P - periodic downloaded static route
-
-Gateway of last resort is 10.2.60.1 to network 0.0.0.0
-
-     172.16.0.0/16 is variably subnetted, 5 subnets, 2 masks
-O       172.16.201.201/32 [110/51] via 10.2.60.1, 00:02:05, Serial0/0
-O IA    172.16.200.200/32 [110/61] via 10.2.60.1, 00:02:05, Serial0/0
-O IA    172.16.100.100/32 [110/71] via 10.2.60.1, 00:02:05, Serial0/0
-C       172.16.201.202/32 is directly connected, Loopback0
-O IA    172.16.101.0/24 [110/81] via 10.2.60.1, 00:02:05, Serial0/0
-     10.0.0.0/8 is variably subnetted, 10 subnets, 3 masks
-O IA    10.0.0.0/24 [110/70] via 10.2.60.1, 00:02:06, Serial0/0
-C       10.2.60.0/30 is directly connected, Serial0/0
-O IA    10.1.50.0/30 [110/130] via 10.2.60.1, 00:02:06, Serial0/0
-C       10.2.201.128/25 is directly connected, FastEthernet0/1
-O IA    10.1.101.0/24 [110/90] via 10.2.60.1, 00:02:06, Serial0/0
-O IA    10.1.100.0/24 [110/80] via 10.2.60.1, 00:02:06, Serial0/0
-O IA    10.2.200.0/24 [110/60] via 10.2.60.1, 00:02:07, Serial0/0
-O       10.2.201.0/25 [110/60] via 10.2.60.1, 00:02:07, Serial0/0
-O IA    10.0.255.4/30 [110/124] via 10.2.60.1, 00:02:07, Serial0/0
-O IA    10.0.255.0/30 [110/110] via 10.2.60.1, 00:02:07, Serial0/0
-O*IA 0.0.0.0/0 [110/51] via 10.2.60.1, 00:02:07, Serial0/0
-r202#
-```
-
 ## 6.5  Configurer une aire totalement terminale
-
-```
-r101#conf t
-Enter configuration commands, one per line.  End with CNTL/Z.
-r101(config)#router ospf 101
-r101(config-router)#area 101 stub no-summary
-r101(config-router)#
-r101#
-02:26:11: %SYS-5-CONFIG_I: Configured from console by console
-r101#
-r101#show ip route
-Codes: C - connected, S - static, R - RIP, M - mobile, B - BGP
-       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
-       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
-       E1 - OSPF external type 1, E2 - OSPF external type 2
-       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
-       ia - IS-IS inter area, * - candidate default, U - per-user static route
-       o - ODR, P - periodic downloaded static route
-
-Gateway of last resort is not set
-
-     172.16.0.0/16 is variably subnetted, 7 subnets, 2 masks
-O IA    172.16.201.201/32 [110/31] via 10.1.100.100, 00:02:17, FastEthernet0/0
-O       172.16.200.200/32 [110/21] via 10.1.100.100, 00:02:17, FastEthernet0/0
-C       172.16.101.101/32 is directly connected, Loopback0
-O       172.16.100.100/32 [110/11] via 10.1.100.100, 00:02:17, FastEthernet0/0
-O IA    172.16.201.202/32 [110/81] via 10.1.100.100, 00:02:17, FastEthernet0/0
-O       172.16.101.102/32 [110/51] via 10.1.50.2, 00:02:17, Serial0/0
-O       172.16.101.0/24 is a summary, 00:02:18, Null0
-     10.0.0.0/8 is variably subnetted, 12 subnets, 3 masks
-O       10.0.0.0/24 [110/20] via 10.1.100.100, 00:02:18, FastEthernet0/0
-O IA    10.2.60.0/30 [110/80] via 10.1.100.100, 00:02:18, FastEthernet0/0
-C       10.1.50.0/30 is directly connected, Serial0/0
-O IA    10.2.201.128/25 [110/90] via 10.1.100.100, 00:02:18, FastEthernet0/0
-C       10.1.101.0/25 is directly connected, FastEthernet0/1
-O       10.1.101.0/24 is a summary, 00:02:19, Null0
-C       10.1.100.0/24 is directly connected, FastEthernet0/0
-O       10.2.200.0/24 [110/30] via 10.1.100.100, 00:02:19, FastEthernet0/0
-O IA    10.2.201.0/25 [110/40] via 10.1.100.100, 00:02:19, FastEthernet0/0
-O       10.1.101.128/25 [110/60] via 10.1.50.2, 00:02:19, Serial0/0
-O       10.0.255.4/30 [110/74] via 10.1.100.100, 00:02:19, FastEthernet0/0
-O       10.0.255.0/30 [110/60] via 10.1.100.100, 00:02:19, FastEthernet0/0
-r101#
-```
-
-```
-r201#conf t
-Enter configuration commands, one per line.  End with CNTL/Z.
-r201(config)#router ospf 201
-r201(config-router)#area 201 stub no-summary
-r201(config-router)#
-r201#
-02:27:10: %SYS-5-CONFIG_I: Configured from console by console
-r201#
-r201#show ip route
-Codes: C - connected, S - static, R - RIP, M - mobile, B - BGP
-       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
-       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
-       E1 - OSPF external type 1, E2 - OSPF external type 2
-       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
-       ia - IS-IS inter area, * - candidate default, U - per-user static route
-       o - ODR, P - periodic downloaded static route
-
-Gateway of last resort is not set
-
-     172.16.0.0/16 is variably subnetted, 5 subnets, 2 masks
-C       172.16.201.201/32 is directly connected, Loopback0
-O       172.16.200.200/32 [110/11] via 10.2.200.200, 00:02:17, FastEthernet0/0
-O       172.16.100.100/32 [110/21] via 10.2.200.200, 00:02:17, FastEthernet0/0
-O       172.16.201.202/32 [110/51] via 10.2.60.2, 00:02:17, Serial0/0
-O IA    172.16.101.0/24 [110/31] via 10.2.200.200, 00:02:17, FastEthernet0/0
-     10.0.0.0/8 is variably subnetted, 10 subnets, 3 masks
-O       10.0.0.0/24 [110/20] via 10.2.200.200, 00:02:19, FastEthernet0/0
-C       10.2.60.0/30 is directly connected, Serial0/0
-O IA    10.1.50.0/30 [110/80] via 10.2.200.200, 00:02:19, FastEthernet0/0
-O       10.2.201.128/25 [110/60] via 10.2.60.2, 00:02:19, Serial0/0
-O IA    10.1.101.0/24 [110/40] via 10.2.200.200, 00:02:19, FastEthernet0/0
-O       10.1.100.0/24 [110/30] via 10.2.200.200, 00:02:19, FastEthernet0/0
-C       10.2.200.0/24 is directly connected, FastEthernet0/0
-C       10.2.201.0/25 is directly connected, FastEthernet0/1
-O       10.0.255.4/30 [110/74] via 10.2.200.200, 00:02:20, FastEthernet0/0
-O       10.0.255.0/30 [110/60] via 10.2.200.200, 00:02:20, FastEthernet0/0
-r201#
-```
-
----
-
-Mêmes commandes avec le snapshot : 
-
-```
-r101#show ip route
-Codes: C - connected, S - static, R - RIP, M - mobile, B - BGP
-       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
-       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
-       E1 - OSPF external type 1, E2 - OSPF external type 2
-       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
-       ia - IS-IS inter area, * - candidate default, U - per-user static route
-       o - ODR, P - periodic downloaded static route
-
-Gateway of last resort is not set
-
-     172.16.0.0/32 is subnetted, 6 subnets
-O IA    172.16.201.201 [110/31] via 10.1.100.100, 00:00:14, FastEthernet0/0
-O       172.16.200.200 [110/21] via 10.1.100.100, 00:00:24, FastEthernet0/0
-C       172.16.101.101 is directly connected, Loopback0
-O       172.16.100.100 [110/11] via 10.1.100.100, 00:00:24, FastEthernet0/0
-O IA    172.16.201.202 [110/81] via 10.1.100.100, 00:00:14, FastEthernet0/0
-O       172.16.101.102 [110/51] via 10.1.50.2, 00:00:54, Serial0/0
-     10.0.0.0/8 is variably subnetted, 10 subnets, 3 masks
-O       10.0.0.0/24 [110/20] via 10.1.100.100, 00:00:26, FastEthernet0/0
-O IA    10.2.60.0/30 [110/80] via 10.1.100.100, 00:00:16, FastEthernet0/0
-C       10.1.50.0/30 is directly connected, Serial0/0
-C       10.1.101.0/25 is directly connected, FastEthernet0/1
-O       10.1.101.0/24 is a summary, 00:00:56, Null0
-C       10.1.100.0/24 is directly connected, FastEthernet0/0
-O       10.2.200.0/24 [110/30] via 10.1.100.100, 00:00:17, FastEthernet0/0
-O IA    10.2.201.0/24 [110/40] via 10.1.100.100, 00:00:17, FastEthernet0/0
-O       10.1.101.128/25 [110/60] via 10.1.50.2, 00:00:57, Serial0/0
-O       10.0.255.0/30 [110/60] via 10.1.100.100, 00:00:27, FastEthernet0/0
-r101#
-```
-
-```
-r201#show ip route
-Codes: C - connected, S - static, R - RIP, M - mobile, B - BGP
-       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
-       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
-       E1 - OSPF external type 1, E2 - OSPF external type 2
-       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
-       ia - IS-IS inter area, * - candidate default, U - per-user static route
-       o - ODR, P - periodic downloaded static route
-
-Gateway of last resort is not set
-
-     172.16.0.0/32 is subnetted, 6 subnets
-C       172.16.201.201 is directly connected, Loopback0
-O       172.16.200.200 [110/11] via 10.2.200.200, 00:00:56, FastEthernet0/0
-O IA    172.16.101.101 [110/31] via 10.2.200.200, 00:00:56, FastEthernet0/0
-O       172.16.100.100 [110/21] via 10.2.200.200, 00:00:56, FastEthernet0/0
-O       172.16.201.202 [110/51] via 10.2.60.2, 00:01:31, Serial0/0
-O IA    172.16.101.102 [110/81] via 10.2.200.200, 00:00:56, FastEthernet0/0
-     10.0.0.0/8 is variably subnetted, 10 subnets, 3 masks
-O       10.0.0.0/24 [110/20] via 10.2.200.200, 00:00:57, FastEthernet0/0
-C       10.2.60.0/30 is directly connected, Serial0/0
-O IA    10.1.50.0/30 [110/80] via 10.2.200.200, 00:00:57, FastEthernet0/0
-O       10.2.201.128/25 [110/60] via 10.2.60.2, 00:01:32, Serial0/0
-O IA    10.1.101.0/24 [110/40] via 10.2.200.200, 00:00:57, FastEthernet0/0
-O       10.1.100.0/24 [110/30] via 10.2.200.200, 00:00:58, FastEthernet0/0
-C       10.2.200.0/24 is directly connected, FastEthernet0/0
-C       10.2.201.0/25 is directly connected, FastEthernet0/1
-O       10.2.201.0/24 is a summary, 00:01:33, Null0
-O       10.0.255.0/30 [110/60] via 10.2.200.200, 00:00:58, FastEthernet0/0
-r201#
-```
 
 **Question 16**
 
 * Qu'est-ce qui a changé dans la table de routage des deux routeurs ?
+  
+  * Sur R101, il n'y a plus de routes vers R202 et sur R201, il n'y a plus de routes vers R102
 
 * Y a-t-il des entrées O IA dans la table de routage intérieure ?
+  
+  * Non
 
 * Quelle modification de la table de routage intérieure indique maintenant une
   aire totalement terminale ?
+  
+  * Il y a maintenant une route par défaut O*IA
 
 # ROUTAGE IPV6 AVEC OSPFV3
 
