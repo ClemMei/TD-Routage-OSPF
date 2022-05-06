@@ -211,13 +211,8 @@ r101#
 * Comment expliquez-vous cela ?
   
   * dans le cas du PC101
-    Seul le routeur R101 dispose des routes retour pour que le message ICMP Reply soit retourné au PC101. 
-    R100 et R102 reçoivent bien le message ICMP Request sur leurs interfaces, en revanche, ils ne disposent pas de la route adéquat pour émettre le ICMP Reply. 
-  
-  * Dans le cas du PC102
-    
-    Seul le routeur R102 dispose des routes retour pour que le message ICMP Reply soit retourné au PC101. 
-    R100 et R101 reçoivent bien le message ICMP Request sur leurs interfaces, en revanche, ils ne disposent pas de la route adéquat pour émettre le ICMP Reply.
+    Le routeur R101 n'a pas de OSPF activé, il est donc le seul qui dispose des routes retour pour que le message ICMP Reply soit retourné au PC101. 
+    R100 et R102 reçoivent bien le message ICMP Request sur leurs interfaces, en revanche, en l'absence d'OSPF sur R101, ils ne disposent pas de la route adéquat pour émettre le ICMP Reply. 
 
 ```
 R100#show ip route 
@@ -1074,7 +1069,7 @@ Exemple pour R101
 | Interface           | F0/1          | S0/0            | Lo0            |
 | ------------------- | ------------- | --------------- | -------------- |
 | Votre adresse       | 10.1.101.101  | 10.1.50.1       | 172.16.101.101 |
-| Adresse des voisins | 10.1.101.102  | 10.1.50.2       |                |
+| Adresse des voisins | 10.1.101.129  | 10.1.50.2       |                |
 | <range-address>     | 10.1.101.0    | 10.1.50.0       | 172.16.101.0   |
 | <range-mask>        | 255.255.255.0 | 255.255.255.252 | 255.255.255.0  |
 
@@ -1468,7 +1463,7 @@ r201#
 
 * Quelle est la différence majeure entre les deux bases de données ?
   
-  Le routeur pair ne contient plus de routes vers l'area 0
+  Le routeur pair n'a plus de routes vers l'area 0
 
 ---
 
